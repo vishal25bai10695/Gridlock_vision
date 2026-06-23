@@ -384,6 +384,38 @@
                             </table>
                         </div>
                     </div>
+            </section>
+
+            <!-- Towing Dispatch Logs / History Section -->
+            <section class="dashboard-row history-section" id="towing-history-section" style="margin-top: 20px;">
+                <div class="card history-card" style="width: 100%;">
+                    <div class="card-header">
+                        <div>
+                            <h3>🚨 Towing Dispatch History Log</h3>
+                            <p>Real-time log of towing dispatch calls issued during this operations session</p>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="schedule-table-wrapper" style="max-height: 250px; overflow-y: auto;">
+                            <table class="schedule-table" id="towing-history-table">
+                                <thead>
+                                    <tr>
+                                        <th style="padding: 12px 16px; font-weight: 600; color: var(--text-secondary); font-size: 0.85em; border-bottom: 1px solid var(--border-color); text-align: left;">Timestamp (IST)</th>
+                                        <th style="padding: 12px 16px; font-weight: 600; color: var(--text-secondary); font-size: 0.85em; border-bottom: 1px solid var(--border-color); text-align: left;">Precinct Division</th>
+                                        <th style="padding: 12px 16px; font-weight: 600; color: var(--text-secondary); font-size: 0.85em; border-bottom: 1px solid var(--border-color); text-align: left;">Junction / Chokepoint</th>
+                                        <th style="padding: 12px 16px; font-weight: 600; color: var(--text-secondary); font-size: 0.85em; border-bottom: 1px solid var(--border-color); text-align: left;">Urgency Level</th>
+                                        <th style="padding: 12px 16px; font-weight: 600; color: var(--text-secondary); font-size: 0.85em; border-bottom: 1px solid var(--border-color); text-align: left;">Estimated ETA</th>
+                                        <th style="padding: 12px 16px; font-weight: 600; color: var(--text-secondary); font-size: 0.85em; border-bottom: 1px solid var(--border-color); text-align: left;">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="towing-history-tbody">
+                                    <tr>
+                                        <td colspan="6" class="text-center" style="color: var(--text-secondary); padding: 20px; text-align: center;">No towing trucks dispatched yet. Click "Call Towing" in the leaderboard to issue dispatch orders.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </section>
 

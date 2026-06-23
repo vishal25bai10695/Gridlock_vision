@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
         predictions: {},
         yearlyPredictions: {},
         cachedExactViolations: { station: null, data: null },
+        towingHistory: [],
 
         
         // Filter States
@@ -796,6 +797,56 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 
+    function addTowingDispatchRecord(precinct, junction, urgency) {
+        const now = new Date();
+        const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Asia/Kolkata' };
+        const dateOptions = { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Kolkata' };
+        const timeStr = now.toLocaleTimeString('en-US', timeOptions);
+        const dateStr = now.toLocaleDateString('en-US', dateOptions);
+        const timestamp = `${dateStr} ${timeStr}`;
+
+        const newRecord = {
+            timestamp: timestamp,
+            precinct: precinct,
+            junction: junction,
+            urgency: urgency,
+            eta: "10 mins",
+            status: "EN ROUTE"
+        };
+
+        if (!state.towingHistory) {
+            state.towingHistory = [];
+        }
+
+        state.towingHistory.unshift(newRecord); // Prepend new records so they show on top
+
+        renderTowingHistory();
+    }
+
+    function renderTowingHistory() {
+        const tbody = document.getElementById('towing-history-tbody');
+        if (!tbody) return;
+
+        if (!state.towingHistory || state.towingHistory.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center" style="color: var(--text-secondary); padding: 20px; text-align: center;">No towing trucks dispatched yet. Click "Call Towing" in the leaderboard to issue dispatch orders.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = '';
+        state.towingHistory.forEach(r => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="padding: 12px 16px; border-bottom: 1px solid var(--border-color); font-family: 'JetBrains Mono', monospace; font-size: 0.85em;">${r.timestamp}</td>
+                <td style="padding: 12px 16px; border-bottom: 1px solid var(--border-color); font-weight: 500;">${r.precinct}</td>
+                <td style="padding: 12px 16px; border-bottom: 1px solid var(--border-color); font-size: 0.9em; color: var(--text-secondary);">${r.junction}</td>
+                <td style="padding: 12px 16px; border-bottom: 1px solid var(--border-color);"><span class="priority-badge ${r.urgency}" style="padding: 2px 8px; border-radius: 4px; font-size: 0.75em; text-transform: uppercase;">${r.urgency}</span></td>
+                <td style="padding: 12px 16px; border-bottom: 1px solid var(--border-color); font-family: 'JetBrains Mono', monospace; font-size: 0.85em;">${r.eta}</td>
+                <td style="padding: 12px 16px; border-bottom: 1px solid var(--border-color);"><span class="priority-badge HIGH" style="padding: 2px 8px; border-radius: 4px; font-size: 0.75em; background-color: var(--accent-coral); color: white;">${r.status}</span></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
     function getJunctionTemporalWeight(hour) {
         if ([8, 9, 10, 11, 17, 18, 19, 20].includes(hour)) return 2.5;
         if ([12, 13, 16].includes(hour)) return 1.5;
@@ -877,6 +928,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tr.querySelector('.dispatch-tow-btn').addEventListener('click', (e) => {
                 const jName = e.target.dataset.junction;
                 showToast(`Dispatch order issued! Towing Truck is route to ${jName}. ETA: 10 mins.`);
+                addTowingDispatchRecord(j.station, jName, urgency);
             });
 
             tbody.appendChild(tr);

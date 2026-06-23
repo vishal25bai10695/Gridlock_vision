@@ -9,6 +9,10 @@ from streamlit_folium import folium_static
 import plotly.express as px
 import plotly.graph_objects as go
 
+# Initialize session state for towing history
+if 'towing_history' not in st.session_state:
+    st.session_state.towing_history = []
+
 # Set page config
 st.set_page_config(
     page_title="BTP Gridlock Vision",
@@ -317,6 +321,16 @@ with tab_ops:
                 with col_j3:
                     btn_key = f"tow_{selected_station}_{j['name']}_{idx}"
                     if st.button("🚨 Call Towing", key=btn_key):
+                        timestamp = pd.Timestamp.now('Asia/Kolkata').strftime('%Y-%m-%d %H:%M:%S')
+                        new_log = {
+                            "Timestamp (IST)": timestamp,
+                            "Precinct Division": selected_station,
+                            "Junction / Chokepoint": j['name'],
+                            "Urgency Level": j_urgency,
+                            "Estimated ETA": "12 minutes",
+                            "Status": "EN ROUTE"
+                        }
+                        st.session_state.towing_history.insert(0, new_log)
                         st.success(f"Dispatch order issued! Towing Truck is route to **{j['name']}**. ETA: 12 minutes.")
                 st.write("")
         else:
@@ -519,3 +533,12 @@ with tab_ops:
     fig_preds = px.area(df_preds, x="Day of Week", y="Predicted PCII Severity", template="plotly_dark", color_discrete_sequence=["#00f2fe"])
     fig_preds.update_layout(height=240, margin=dict(l=10, r=10, t=10, b=10))
     st.plotly_chart(fig_preds, use_container_width=True)
+
+    # Towing Dispatch Logs / History Section
+    st.write("---")
+    st.subheader("🚨 Towing Dispatch History Log")
+    if st.session_state.towing_history:
+        df_history = pd.DataFrame(st.session_state.towing_history)
+        st.dataframe(df_history, use_container_width=True, hide_index=True)
+    else:
+        st.info("No towing trucks dispatched yet. Click 'Call Towing' in the junction list to issue dispatch orders.")
