@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Gridlock Vision - AI-driven spatial-temporal parking intelligence and targeted enforcement scheduler for Bengaluru Traffic Police.">
+    <title>Gridlock Vision 2.0 | BTP Parking Intelligence Dashboard</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet.js Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation & Filters -->
+        <aside class="sidebar" role="complementary">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        <path d="M8 11h8"/>
+                        <path d="M12 7v8"/>
+                    </svg>
+                    <div class="logo-text">
+                        <h1>GRIDLOCK VISION</h1>
+                        <span>BTP PARKING INTEL HUB</span>
+                    </div>
+                </div>
+                <div class="badge-status">
+                    <span class="pulse-dot"></span>
+                    <span>SYSTEM ONLINE</span>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h2>NAVIGATION</h2>
+                <div class="tab-links">
+                    <button class="tab-link active" id="tab-dashboard" data-tab="dashboard">
+                        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="9"/>
+                            <rect x="14" y="3" width="7" height="5"/>
+                            <rect x="14" y="12" width="7" height="9"/>
+                            <rect x="3" y="16" width="7" height="5"/>
+                        </svg>
+                        Operations Center
+                    </button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h2>JURISDICTION FILTER</h2>
+                <div class="form-group">
+                    <label for="station-select">Police Station Jurisdiction</label>
+                    <div class="custom-select-wrapper">
+                        <select id="station-select">
+                            <option value="ALL">All Stations (Bengaluru City)</option>
+                            <!-- Dynamically populated -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h2>TEMPORAL CONTEXT</h2>
+                
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label for="query-month">Query Month</label>
+                    <div class="custom-select-wrapper">
+                        <select id="query-month">
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label for="query-day">Query Day of Week</label>
+                    <div class="custom-select-wrapper">
+                        <select id="query-day">
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                            <option value="Saturday">Saturday</option>
+                            <option value="Sunday">Sunday</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="query-hour-slider" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <span>Query Hour Slot</span>
+                        <span id="query-hour-label" style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-teal);">12:00</span>
+                    </label>
+                    <input type="range" id="query-hour-slider" min="0" max="23" value="12" style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 5px; outline: none; cursor: pointer; accent-color: var(--accent-teal);">
+                </div>
+            </div>
+
+            <div class="sidebar-section explanation">
+                <h2>ABOUT PCII</h2>
+                <p><strong>Parking Congestion Impact Index (PCII)</strong> quantifies the traffic delay potential of illegal parking.</p>
+                <div class="pcii-formula">
+                    <code>PCII = W<sub>veh</sub> &times; W<sub>viol</sub> &times; W<sub>time</sub></code>
+                </div>
+                <ul>
+                    <li><span class="legend-color legend-red"></span> Heavy vehicles block 10x more than 2-wheelers</li>
+                    <li><span class="legend-color legend-orange"></span> Main Road/Double Parking blocks active lanes</li>
+                    <li><span class="legend-color legend-blue"></span> Office commute peaks (AM/PM) amplify gridlock</li>
+                </ul>
+            </div>
+
+            <div class="sidebar-footer">
+                <p>Gridlock 2.0 - Phase 2 Prototype</p>
+                <p class="mono-text">v2.0.4-beta</p>
+            </div>
+        </aside>
+
+        <!-- Main Dashboard Dashboard Content -->
+        <main class="main-content" role="main">
+            <!-- Header Banner -->
+            <header class="main-header">
+                <div class="header-title">
+                    <h2 id="view-title">Bengaluru City Overview</h2>
+                    <p id="view-subtitle">Spatio-Temporal Aggregates & Targeted Enforcement Actions</p>
+                </div>
+                <div class="header-datetime">
+                    <span id="current-date">Sunday, June 21, 2026</span>
+                    <span id="current-time" class="mono-text">02:46 AM IST</span>
+                </div>
+            </header>
+
+            <!-- Dashboard Overview Tab View -->
+            <div id="dashboard-view" class="tab-view active">
+                <!-- Metric Summary Cards -->
+            <section class="metrics-grid" aria-label="Key Performance Indicators">
+                <div class="metric-card" id="metric-violations">
+                    <div class="metric-icon purple">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                    </div>
+                    <div class="metric-details">
+                        <span class="metric-label">TOTAL VIOLATIONS</span>
+                        <h3 class="metric-value" id="kpi-violations">-</h3>
+                        <span class="metric-trend green">✓ Cleaned & Processed</span>
+                    </div>
+                </div>
+
+                <div class="metric-card" id="metric-pcii">
+                    <div class="metric-icon red">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                        </svg>
+                    </div>
+                    <div class="metric-details">
+                        <span class="metric-label">CONGESTION IMPACT (PCII)</span>
+                        <h3 class="metric-value" id="kpi-pcii">-</h3>
+                        <span class="metric-trend red">⚠️ Total Lane Obstruction</span>
+                    </div>
+                </div>
+
+                <div class="metric-card" id="metric-hotspots">
+                    <div class="metric-icon orange">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                            <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                    </div>
+                    <div class="metric-details">
+                        <span class="metric-label">ACTIVE HOTSPOTS</span>
+                        <h3 class="metric-value" id="kpi-hotspots">-</h3>
+                        <span class="metric-trend" id="kpi-hotspots-caption">Grid cells (110m)</span>
+                    </div>
+                </div>
+
+                <div class="metric-card" id="metric-junctions">
+                    <div class="metric-icon blue">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="9" y1="3" x2="9" y2="21"/>
+                            <line x1="15" y1="3" x2="15" y2="21"/>
+                            <line x1="3" y1="9" x2="21" y2="9"/>
+                            <line x1="3" y1="15" x2="21" y2="15"/>
+                        </svg>
+                    </div>
+                    <div class="metric-details">
+                        <span class="metric-label">CRITICAL JUNCTIONS</span>
+                        <h3 class="metric-value" id="kpi-junctions">-</h3>
+                        <span class="metric-trend blue" id="kpi-junctions-caption">Assigned locations</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Real-Time Predictions & Patrol Urge Section -->
+            <section class="dashboard-row prediction-section" id="prediction-panel" style="display: none; margin-bottom: 20px;">
+                <div class="card prediction-card" style="width: 100%;">
+                    <div class="card-header flex-row">
+                        <div>
+                            <div class="title-with-badge">
+                                <h3>⚡ Real-Time Jurisdiction Intel & Patrol Urge</h3>
+                                <span class="badge-engine" style="background: linear-gradient(135deg, var(--accent-teal), #00b4db); color: #0a0d14;">ML MODEL ACTIVE</span>
+                            </div>
+                            <p>Current hour traffic forecasting and dynamic enforcement prioritization</p>
+                        </div>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="prediction-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; padding: 10px 0;">
+                            <div class="pred-item" style="background: rgba(255, 255, 255, 0.02); padding: 15px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05);">
+                                <span class="metric-label" style="font-size: 11px; color: var(--text-secondary); display: block; margin-bottom: 5px;">CURRENT HOUR PREDICTED VIOLATIONS</span>
+                                <h3 class="metric-value" id="pred-violations-count" style="font-size: 24px; color: var(--text-primary); margin: 0; font-family: 'JetBrains Mono', monospace;">-</h3>
+                                <span class="metric-trend" style="font-size: 11px; color: var(--text-secondary); display: block; margin-top: 5px;">Estimated offenses for the current hour</span>
+                            </div>
+                            <div class="pred-item" style="background: rgba(255, 255, 255, 0.02); padding: 15px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05);">
+                                <span class="metric-label" style="font-size: 11px; color: var(--text-secondary); display: block; margin-bottom: 5px;">CURRENT HOUR PCII SEVERITY</span>
+                                <h3 class="metric-value" id="pred-pcii-val" style="font-size: 24px; color: var(--text-primary); margin: 0; font-family: 'JetBrains Mono', monospace;">-</h3>
+                                <span class="metric-trend" style="font-size: 11px; color: var(--text-secondary); display: block; margin-top: 5px;">Roadway congestion impact rating</span>
+                            </div>
+                            <div class="pred-item urge-badge-container" id="pred-urge-card" style="background: rgba(255, 255, 255, 0.02); padding: 15px; border-radius: 8px; border-left: 5px solid #ffffff; border-top: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <span class="metric-label" style="font-size: 10px; color: #a5b1c2; letter-spacing: 1.5px; font-weight: bold; display: block; margin-bottom: 2px;">PATROL URGE LEVEL</span>
+                                <span id="pred-urge-level" style="font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 800; display: block;">-</span>
+                                <p id="pred-urge-desc" style="font-size: 11px; color: var(--text-secondary); margin: 5px 0 0 0; line-height: 1.3;">Select a jurisdiction to run the predictive model.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Map & Junction Leaderboard Row -->
+            <section class="dashboard-row map-leaderboard-section">
+                <!-- Spatial Heatmap Card -->
+                <div class="card map-card flex-grow-2">
+                    <div class="card-header">
+                        <div>
+                            <h3>Spatial Congestion Heatmap</h3>
+                            <p>Visualizing illegal parking hotspots scaled by traffic obstruction (PCII)</p>
+                        </div>
+                        <div class="map-controls">
+                            <button class="map-layer-btn active" id="btn-show-hotspots">Show Area Hotspots</button>
+                            <button class="map-layer-btn" id="btn-show-junctions">Show Junction Pins</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="map"></div>
+                    </div>
+                </div>
+
+                <!-- Junction Leaderboard Card -->
+                <div class="card leaderboard-card flex-grow-1">
+                    <div class="card-header">
+                        <div>
+                            <h3>Choked Junctions Leaderboard</h3>
+                            <p>Ranked by cumulative PCII score</p>
+                        </div>
+                    </div>
+                    <div class="card-body scrollable-body">
+                        <div class="leaderboard-table-wrapper">
+                            <table class="leaderboard-table" id="junction-leaderboard">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Junction Name</th>
+                                        <th>Patrolling Urgency</th>
+                                        <th>Dispatch Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Dynamic rows -->
+                                    <tr class="skeleton-row"><td colspan="4"><div class="skeleton-bar"></div></td></tr>
+                                    <tr class="skeleton-row"><td colspan="4"><div class="skeleton-bar"></div></td></tr>
+                                    <tr class="skeleton-row"><td colspan="4"><div class="skeleton-bar"></div></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytical Charts Grid -->
+            <section class="dashboard-row charts-grid" aria-label="Interactive Analytical Charts">
+                <!-- Hourly Congestion Wave -->
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h3>Hourly Congestion Wave (IST Local Time)</h3>
+                        <p>Total violations vs. PCII score across the day</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="chart-hourly"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle Obstruction Profile -->
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h3>Obstruction Profile by Vehicle Type</h3>
+                        <p>Vehicle share weighted by road space displacement</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="chart-vehicles"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Next 7-Day Risk Forecasting -->
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h3>Next 7-Day Congestion Risk Forecast</h3>
+                        <p>Predictive spatial-temporal model based on historical seasonality</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="chart-forecast"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Enforcement scheduler table -->
+            <section class="dashboard-row scheduler-section">
+                <div class="card scheduler-card">
+                    <div class="card-header flex-row">
+                        <div>
+                            <div class="title-with-badge">
+                                <h3>Targeted Enforcement & Patrol Scheduler</h3>
+                                <span class="badge-engine">AI ENGINE ACTIVE</span>
+                            </div>
+                            <p>Optimized patrol window, resource requirement, and preventive action per station jurisdiction</p>
+                        </div>
+                        <div class="scheduler-actions">
+                            <button id="btn-export-schedule" class="btn-action">
+                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="7 10 12 15 17 10"/>
+                                    <line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                                Export Patrol Order
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="schedule-table-wrapper">
+                            <table class="schedule-table" id="patrol-schedule-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 100px;">Priority</th>
+                                        <th>Target Zone / Junction</th>
+                                        <th style="width: 120px;">Day</th>
+                                        <th style="width: 150px;">Patrol Window (IST)</th>
+                                        <th>Peak Vehicles</th>
+                                        <th>Enforcement Action</th>
+                                        <th>Required Assets</th>
+                                        <th>Preventive Impact</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="schedule-tbody">
+                                    <!-- Dynamic rows -->
+                                    <tr>
+                                        <td colspan="8" class="text-center">Select a Police Station jurisdiction to generate the schedule.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            </div><!-- End of #dashboard-view -->
+
+        </main>
+    </div>
+
+    <!-- Leaflet.js Map Library -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom Application Javascript -->
+    <script src="app.js"></script>
+</body>
+</html>

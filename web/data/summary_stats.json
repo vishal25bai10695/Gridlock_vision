@@ -1,0 +1,64 @@
+{
+  "total_violations": 298450,
+  "total_pcii": 1602107.5,
+  "avg_pcii": 5.3680934829954765,
+  "hotspots_count": 2215,
+  "junctions_count": 168,
+  "validation_stats": {
+    "Pending Auditing": 125254,
+    "approved": 115400,
+    "rejected": 49754,
+    "created1": 7044,
+    "processing": 678,
+    "duplicate": 320
+  },
+  "top_stations": [
+    {
+      "name": "Upparpet",
+      "pcii": 174807.075
+    },
+    {
+      "name": "Shivajinagar",
+      "pcii": 143037.9525
+    },
+    {
+      "name": "Malleshwaram",
+      "pcii": 136452.15
+    },
+    {
+      "name": "HAL Old Airport",
+      "pcii": 131741.4475
+    },
+    {
+      "name": "City Market",
+      "pcii": 69227.2675
+    }
+  ],
+  "top_junctions": [
+    {
+      "name": "BTP051 - Safina Plaza Junction",
+      "count": 15449,
+      "pcii": 82114.09999999999
+    },
+    {
+      "name": "BTP044 - Sagar Theatre Junction",
+      "count": 10549,
+      "pcii": 55292.9525
+    },
+    {
+      "name": "BTP040 - Elite Junction",
+      "count": 10718,
+      "pcii": 44129.705
+    },
+    {
+      "name": "BTP082 - KR Market Junction",
+      "count": 11538,
+      "pcii": 39309.020000000004
+    },
+    {
+      "name": "BTP211 - Central Street Junction",
+      "count": 5388,
+      "pcii": 26173.3275
+    }
+  ]
+}
